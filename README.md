@@ -1,46 +1,40 @@
-<!-- Modified for pinecone; see NOTICE. -->
+<!-- Modified for pinecone desktop; see NOTICE. -->
 
-# pinecone
+# pinecone desktop
 
-An AI-assisted visual editor for Next.js and Tailwind CSS. Edit interfaces on a
-canvas, inspect the source, and write changes directly back to the codebase.
+An Electron desktop editor for local React projects: visual canvas, layers,
+source editing, terminal and AI-assisted changes. Built from the public desktop
+source release, version 0.2.31.
 
 ![pinecone](assets/logo.svg)
 
-## Local setup
+## Run locally
 
-Requires Bun 1.3.1 or newer and Docker for the local Supabase backend.
+Requires Bun and macOS developer tools for native dependencies.
 
 ```sh
-git clone https://github.com/Carey8175/pinecone.git
-cd pinecone
 bun install --frozen-lockfile
-cp apps/web/client/.env.example apps/web/client/.env
-bun run backend:start
-# Fill in local Supabase credentials, a CodeSandbox key and an OpenRouter key.
-bun run dev
+bun run desktop
 ```
 
-Open http://localhost:3000. Deployment requires your own service accounts and
-domain configuration. Domains ending in `.example` are placeholders; no public
-pinecone website or support mailbox is configured. Set `NEXT_PUBLIC_SITE_URL`,
-`NEXT_PUBLIC_HOSTING_DOMAIN`, `PINECONE_SUPPORT_EMAIL` and
-`PINECONE_CONTACT_EMAIL` for your installation.
+The application supports offline local project editing without Supabase.
+Cloud services and AI require your own configuration in `apps/studio/.env`;
+see `.env.example`. The public desktop source does not include the newer
+Codex-integrated interface shown in some separately distributed clients.
 
-## Commands
+Application data is stored in the separate `pinecone` directory under the OS
+application data directory. The app uses its own profile.
+Automatic updates remain off until a pinecone release feed is configured.
+
+To package an unsigned macOS application:
 
 ```sh
-bun run typecheck
-bun test --timeout 30000
-bun run build
-bun run docs
+bun run build:studio
+bun run rebuild:native
+cd apps/studio
+CSC_IDENTITY_AUTO_DISCOVERY=false bun run package --dir --mac --arm64
 ```
-
-The editor lives in `apps/web/client`, browser instrumentation in
-`apps/web/preload`, shared packages in `packages`, and documentation in `docs`.
-All workspace packages use the `@pinecone` namespace. The optional private admin
-application is not included in this repository.
 
 ## License
 
-Apache-2.0. See [LICENSE.md](LICENSE.md) and [NOTICE](NOTICE).
+Apache-2.0; see [LICENSE.md](LICENSE.md) and [NOTICE](NOTICE).

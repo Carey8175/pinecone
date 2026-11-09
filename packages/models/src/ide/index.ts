@@ -1,4 +1,4 @@
-// Modified for pinecone; see NOTICE.
+// Modified for pinecone desktop; see NOTICE.
 export enum IdeType {
     VS_CODE = 'VSCode',
     CURSOR = 'Cursor',
@@ -7,4 +7,4 @@ export enum IdeType {
     PINECONE = 'pinecone',
 }
 
-export const DEFAULT_IDE = IdeType.PINECONE;
+export const DEFAULT_IDE = IdeType.CURSOR;

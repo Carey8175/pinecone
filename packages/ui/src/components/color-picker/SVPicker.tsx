@@ -1,4 +1,4 @@
-// Modified for pinecone; see NOTICE.
+// Modified for pinecone desktop; see NOTICE.
 import { clamp } from 'lodash';
 import type React from 'react';
 import { usePointerStroke } from '../../hooks/use-pointer-stroke';
@@ -23,7 +23,7 @@ interface SVPickerBodyProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const SVPickerBody: React.FC<SVPickerBodyProps> = ({ children, ...props }) => (
     <div
-        className="relative shadow-inner border border-gray-300 rounded-sm overflow-hidden cursor-pointer"
+        className="relative shadow-inner border border-gray-300 rounded overflow-hidden cursor-pointer"
         {...props}
     >
         {children}

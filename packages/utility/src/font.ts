@@ -1,5 +1,5 @@
-// Modified for pinecone; see NOTICE.
-import { DEFAULT, VARIANTS } from '@pinecone/fonts';
+// Modified for pinecone desktop; see NOTICE.
+import { DEFAULT_FONT_STYLE, DEFAULT_FONT_WEIGHT, FONT_VARIANTS } from '@pinecone/models/constants';
 import { camelCase } from 'lodash';
 
 /**
@@ -104,10 +104,12 @@ function extractFontParts(fileName: string): FontParts {
 
     // Convert weight to numeric value
     if (weight) {
-        let match = VARIANTS.find((variant) => variant.name.toLowerCase() === weight.toLowerCase());
+        let match = FONT_VARIANTS.find(
+            (variant) => variant.name.toLowerCase() === weight.toLowerCase(),
+        );
 
         if (!match && /^\d+$/.test(weight)) {
-            match = VARIANTS.find((variant) => variant.value === weight);
+            match = FONT_VARIANTS.find((variant) => variant.value === weight);
         }
 
         if (!match) {
@@ -115,7 +117,7 @@ function extractFontParts(fileName: string): FontParts {
             const weightNormalized = weightLower.replace(/\s+/g, '');
 
             // First try to find exact matches (normalized for spaces)
-            match = VARIANTS.find((variant) => {
+            match = FONT_VARIANTS.find((variant) => {
                 const variantLower = variant.name.toLowerCase();
                 const variantNormalized = variantLower.replace(/\s+/g, '');
 
@@ -124,7 +126,7 @@ function extractFontParts(fileName: string): FontParts {
 
             // If no exact match found, then try partial matches
             if (!match) {
-                match = VARIANTS.find((variant) => {
+                match = FONT_VARIANTS.find((variant) => {
                     const variantLower = variant.name.toLowerCase();
 
                     return (
@@ -140,11 +142,11 @@ function extractFontParts(fileName: string): FontParts {
     }
 
     if (!style) {
-        style = DEFAULT.STYLE;
+        style = DEFAULT_FONT_STYLE;
     }
 
     if (!weight) {
-        weight = DEFAULT.WEIGHT;
+        weight = DEFAULT_FONT_WEIGHT;
     }
 
     return { family, weight, style };
@@ -188,20 +190,11 @@ function convertFontString(fontString: string): string {
         return '';
     }
 
-    const firstFont = fontString.split(',')[0]?.trim();
-    const cleanFont = firstFont?.replace(/^__/, '').replace(/_[a-f0-9]+$/, '');
-    const withoutFallback = cleanFont?.replace(/_Fallback$/, '');
+    const firstFont = fontString.split(',')[0].trim();
+    const cleanFont = firstFont.replace(/^__/, '').replace(/_[a-f0-9]+$/, '');
+    const withoutFallback = cleanFont.replace(/_Fallback$/, '');
 
     return camelCase(withoutFallback);
 }
 
-/**
- * Converts a font weight string to a human-readable name
- * @param weight - The weight value to convert
- * @returns The human-readable name of the weight, or the original weight if no match is found
- */
-
-function convertFontWeight(weight: string): string {
-    return VARIANTS.find((variant) => variant.value === weight)?.name ?? weight;
-}
-export { convertFontString, convertFontWeight, extractFontParts, getFontFileName };
+export { extractFontParts, getFontFileName, convertFontString };

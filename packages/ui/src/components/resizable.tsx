@@ -1,4 +1,4 @@
-// Modified for pinecone; see NOTICE.
+// Modified for pinecone desktop; see NOTICE.
 import { cn } from '@pinecone/ui/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -83,10 +83,9 @@ interface ResizablePanelProps {
     maxWidth?: number;
     forceWidth?: number;
     className?: string;
-    [key: string]: any;
 }
 
-export const ResizablePanel: React.FC<ResizablePanelProps> = ({
+const ResizablePanel: React.FC<ResizablePanelProps> = ({
     children,
     side = 'left',
     defaultWidth = 240,
@@ -94,7 +93,6 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
     maxWidth = 600,
     forceWidth,
     className,
-    ...props
 }) => {
     const { width, handleMouseDown, isAnimating } = useResizable({
         defaultWidth,
@@ -113,12 +111,11 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
                 side === 'left' ? 'left-0' : 'right-0',
                 className,
             )}
-            {...props}
         >
             <div className="h-full">{children}</div>
             <div
                 className={cn(
-                    'absolute top-0 h-full w-1 cursor-col-resize transition-all hover:bg-border/50 group/panel-hover:bg-border/30',
+                    'absolute top-0 h-full w-1 cursor-col-resize transition-all',
                     side === 'left' ? 'right-0' : 'left-0',
                 )}
                 onMouseDown={handleMouseDown}
@@ -126,3 +123,5 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
         </div>
     );
 };
+
+export default ResizablePanel;

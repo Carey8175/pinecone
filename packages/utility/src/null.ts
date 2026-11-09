@@ -1,3 +1,3 @@
-export function isNullOrUndefined(value: any): boolean {
+export function isNullOrUndefined(value: any) {
     return value === null || value === undefined;
 }

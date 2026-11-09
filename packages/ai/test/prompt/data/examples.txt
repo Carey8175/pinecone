@@ -8,6 +8,8 @@ Here's the updated code:
 
 /path/to/your/project/components/TodoList.tsx
 ```tsx
+<<<<<<< SEARCH
+=======
 import { useState } from 'react';
 
 interface Todo {
@@ -45,6 +47,9 @@ export function TodoList() {
     </ul>
   );
 }
+>>>>>>> REPLACE
+```
+
 USER: Refactor the TodoList by extracting the TodoItem into its own component
 ASSISTANT: Let's refactor the TodoList by extracting the TodoItem into its own component:
 1. Create a new TodoItem component
@@ -55,6 +60,8 @@ Here's the updated code:
 
 /path/to/your/project/components/TodoItem.tsx
 ```tsx
+<<<<<<< SEARCH
+=======
 interface TodoItemProps {
   id: number;
   text: string;
@@ -76,16 +83,40 @@ export function TodoItem({ id, text, completed, onToggle }: TodoItemProps) {
     </li>
   );
 }
+>>>>>>> REPLACE
 ```
 
 /path/to/your/project/components/TodoList.tsx
 ```tsx
+<<<<<<< SEARCH
+import { useState } from 'react';
+=======
 import { useState } from 'react';
 import { TodoItem } from './TodoItem';
+>>>>>>> REPLACE
+```
 
 /path/to/your/project/components/TodoList.tsx
 ```tsx
-// ... existing code ...
+<<<<<<< SEARCH
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li key={todo.id} className="flex items-center gap-2 p-2">
+          <input
+            type="checkbox"
+            checked={todo.completed}
+            onChange={() => toggleTodo(todo.id)}
+          />
+          <span className={todo.completed ? 'line-through' : ''}>
+            {todo.text}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+=======
   return (
     <ul>
       {todos.map(todo => (
@@ -98,4 +129,5 @@ import { TodoItem } from './TodoItem';
     </ul>
   );
 }
+>>>>>>> REPLACE
 ```

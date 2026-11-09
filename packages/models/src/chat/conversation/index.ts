@@ -1,16 +1,12 @@
-import type { ChatSuggestion } from '../suggestion';
+import type { AssistantChatMessage, ChatMessage, TokenUsage } from '../message/index.ts';
 
-export enum AgentType {
-    ROOT = "root",
-    USER = "user",
-}
-
-export interface ChatConversation {
+export type ChatConversation = {
     id: string;
-    agentType: AgentType;
-    title: string | null;
     projectId: string;
-    createdAt: Date;
-    updatedAt: Date;
-    suggestions: ChatSuggestion[];
-}
+    displayName: string | null;
+    messages: ChatMessage[];
+    createdAt: string;
+    updatedAt: string;
+    summaryMessage?: AssistantChatMessage | null;
+    tokenUsage?: TokenUsage;
+};

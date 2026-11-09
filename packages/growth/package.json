@@ -1,5 +1,5 @@
 {
-  "$comment": "Modified for pinecone; see NOTICE.",
+  "$comment": "Modified for pinecone desktop; see NOTICE.",
   "name": "@pinecone/growth",
   "description": "Growth helpers",
   "main": "./src/index.ts",
@@ -14,8 +14,8 @@
   },
   "scripts": {
     "clean": "rm -rf node_modules",
-    "lint": "eslint . --max-warnings 0",
-    "format": "eslint --fix .",
+    "lint": "eslint --fix .",
+    "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
@@ -29,13 +29,12 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/Carey8175/pinecone",
   "devDependencies": {
-    "@pinecone/eslint": "*",
-    "@pinecone/typescript": "*",
-    "eslint": "^9.0.0",
-    "typescript": "^5.5.4"
+    "@pinecone/typescript": "*"
   },
   "dependencies": {
-    "@pinecone/parser": "*",
-    "@pinecone/utility": "*"
+    "@babel/generator": "^7.14.5",
+    "@babel/parser": "^7.14.3",
+    "@babel/traverse": "^7.14.5",
+    "@babel/types": "^7.24.7"
   }
 }

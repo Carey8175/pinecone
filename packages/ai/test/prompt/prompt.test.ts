@@ -1,33 +1,25 @@
-// Modified for pinecone; see NOTICE.
-import { MessageContextType } from '@pinecone/models';
+// Modified for pinecone desktop; see NOTICE.
+import { MessageContextType } from '@pinecone/models/chat';
 import { describe, expect, test } from 'bun:test';
 import path from 'path';
-import { FileContext, HighlightContext } from '../../src/contexts/classes';
-import {
-    type HydrateMessageOptions,
-    getCreatePageSystemPrompt,
-    getHydratedUserMessage,
-    getSummaryPrompt,
-    getSystemPrompt,
-} from '../../src/prompt/provider';
+import { SEARCH_REPLACE_EXAMPLE_CONVERSATION } from 'src/prompt/edit';
+import { PromptProvider } from '../../src/prompt/provider';
 
 const __dirname = import.meta.dir;
 
 describe('Prompt', () => {
-    // Set to true to update the data files
-    const SHOULD_UPDATE_DATA = true;
-
-    const SHOULD_WRITE_SYSTEM = SHOULD_UPDATE_DATA;
-    const SHOULD_WRITE_USER_MESSAGE = SHOULD_UPDATE_DATA;
-    const SHOULD_WRITE_FILE_CONTENT = SHOULD_UPDATE_DATA;
-    const SHOULD_WRITE_HIGHLIGHTS = SHOULD_UPDATE_DATA;
-    const SHOULD_WRITE_SUMMARY = SHOULD_UPDATE_DATA;
-    const SHOULD_WRITE_CREATE_PAGE_SYSTEM = SHOULD_UPDATE_DATA;
+    const SHOULD_WRITE_SYSTEM = false;
+    const SHOULD_WRITE_EXAMPLES = false;
+    const SHOULD_WRITE_USER_MESSAGE = false;
+    const SHOULD_WRITE_FILE_CONTENT = false;
+    const SHOULD_WRITE_HIGHLIGHTS = false;
+    const SHOULD_WRITE_SUMMARY = false;
+    const SHOULD_WRITE_CREATE_PAGE_SYSTEM = false;
 
     test('System prompt should be the same', async () => {
         const systemPath = path.resolve(__dirname, './data/system.txt');
 
-        const prompt = getSystemPrompt();
+        const prompt = new PromptProvider().getSystemPrompt('darwin');
         if (SHOULD_WRITE_SYSTEM) {
             await Bun.write(systemPath, prompt);
         }
@@ -36,54 +28,57 @@ describe('Prompt', () => {
         expect(prompt).toEqual(existing);
     });
 
+    test('Examples should be the same', async () => {
+        const examplesPath = path.resolve(__dirname, './data/examples.txt');
+
+        const prompt = new PromptProvider().getExampleConversation(
+            SEARCH_REPLACE_EXAMPLE_CONVERSATION,
+        );
+        if (SHOULD_WRITE_EXAMPLES) {
+            await Bun.write(examplesPath, prompt);
+        }
+
+        const existing = await Bun.file(examplesPath).text();
+        expect(prompt).toEqual(existing);
+    });
+
     test('User message should be the same', async () => {
         const userMessagePath = path.resolve(__dirname, './data/user.txt');
-        const options: HydrateMessageOptions = {
-            totalMessages: 1,
-            currentMessageIndex: 0,
-            lastUserMessageIndex: 0,
-            lastAssistantMessageIndex: 0,
-        };
 
-        const message = getHydratedUserMessage(
-            'test',
-            [{ type: 'text', text: 'test' }],
-            [
-                {
-                    path: 'test.txt',
-                    content: 'test',
-                    type: MessageContextType.FILE,
-                    displayName: 'test.txt',
-                    branchId: 'test',
-                },
+        const message = new PromptProvider().getHydratedUserMessage('test', [
+            {
+                path: 'test.txt',
+                content: 'test',
+                type: MessageContextType.FILE,
+                displayName: 'test.txt',
+            },
 
-                {
-                    path: 'test.txt',
-                    start: 1,
-                    end: 2,
-                    content: 'test',
-                    type: MessageContextType.HIGHLIGHT,
-                    displayName: 'test.txt',
-                    branchId: 'test',
-                },
+            {
+                path: 'test.txt',
+                start: 1,
+                end: 2,
+                content: 'test',
+                type: MessageContextType.HIGHLIGHT,
+                displayName: 'test.txt',
+            },
 
-                {
-                    content: 'test',
-                    type: MessageContextType.ERROR,
-                    displayName: 'test',
-                    branchId: 'test',
-                },
-                {
-                    path: 'test-rule.md',
-                    type: MessageContextType.AGENT_RULE,
-                    displayName: 'test',
-                    content: '',
-                },
-            ],
-            options,
-        );
+            {
+                content: 'test',
+                type: MessageContextType.ERROR,
+                displayName: 'test',
+            },
+            {
+                path: 'test',
+                type: MessageContextType.PROJECT,
+                displayName: 'test',
+                content: '',
+            },
+        ]);
 
-        const prompt = message.parts[0]?.type === 'text' ? message.parts[0].text : '';
+        const prompt =
+            typeof message.content === 'string'
+                ? message.content
+                : message.content.map((c) => (c.type === 'text' ? c.text : '')).join('');
 
         if (SHOULD_WRITE_USER_MESSAGE) {
             await Bun.write(userMessagePath, prompt);
@@ -96,15 +91,11 @@ describe('Prompt', () => {
     test('User empty message should be the same', async () => {
         const userMessagePath = path.resolve(__dirname, './data/user-empty.txt');
 
-        const options: HydrateMessageOptions = {
-            totalMessages: 1,
-            currentMessageIndex: 0,
-            lastUserMessageIndex: 0,
-            lastAssistantMessageIndex: 0,
-        };
-
-        const message = getHydratedUserMessage('test', [], [], options);
-        const prompt = message.parts[0]?.type === 'text' ? message.parts[0].text : '';
+        const message = new PromptProvider().getHydratedUserMessage('test', []);
+        const prompt =
+            typeof message.content === 'string'
+                ? message.content
+                : message.content.map((c) => (c.type === 'text' ? c.text : '')).join('');
 
         if (SHOULD_WRITE_USER_MESSAGE) {
             await Bun.write(userMessagePath, prompt);
@@ -117,21 +108,19 @@ describe('Prompt', () => {
     test('File content should be the same', async () => {
         const fileContentPath = path.resolve(__dirname, './data/file.txt');
 
-        const prompt = FileContext.getFilesContent(
+        const prompt = new PromptProvider().getFilesContent(
             [
                 {
                     path: 'test.txt',
                     content: 'test',
                     type: MessageContextType.FILE,
                     displayName: 'test.txt',
-                    branchId: 'test',
                 },
                 {
                     path: 'test2.txt',
                     content: 'test2',
                     type: MessageContextType.FILE,
                     displayName: 'test2.txt',
-                    branchId: 'test',
                 },
             ],
             [
@@ -142,7 +131,6 @@ describe('Prompt', () => {
                     content: 'test',
                     type: MessageContextType.HIGHLIGHT,
                     displayName: 'test.txt',
-                    branchId: 'test',
                 },
             ],
         );
@@ -158,7 +146,7 @@ describe('Prompt', () => {
     test('Highlights should be the same', async () => {
         const highlightsPath = path.resolve(__dirname, './data/highlights.txt');
 
-        const prompt = HighlightContext.getHighlightsContent('test.txt', [
+        const prompt = new PromptProvider().getHighlightsContent('test.txt', [
             {
                 path: 'test.txt',
                 start: 1,
@@ -166,7 +154,6 @@ describe('Prompt', () => {
                 content: 'test',
                 type: MessageContextType.HIGHLIGHT,
                 displayName: 'test.txt',
-                branchId: 'test',
             },
             {
                 path: 'test.txt',
@@ -175,9 +162,8 @@ describe('Prompt', () => {
                 content: 'test2',
                 type: MessageContextType.HIGHLIGHT,
                 displayName: 'test.txt',
-                branchId: 'test',
             },
-        ], 'test');
+        ]);
         if (SHOULD_WRITE_HIGHLIGHTS) {
             await Bun.write(highlightsPath, prompt);
         }
@@ -189,7 +175,7 @@ describe('Prompt', () => {
     test('Summary prompt should be the same', async () => {
         const summaryPath = path.resolve(__dirname, './data/summary.txt');
 
-        const prompt = getSummaryPrompt();
+        const prompt = new PromptProvider().getSummaryPrompt();
         if (SHOULD_WRITE_SUMMARY) {
             await Bun.write(summaryPath, prompt);
         }
@@ -201,7 +187,7 @@ describe('Prompt', () => {
     test('Create page system prompt should be the same', async () => {
         const createPageSystemPath = path.resolve(__dirname, './data/create-page-system.txt');
 
-        const prompt = getCreatePageSystemPrompt();
+        const prompt = new PromptProvider().getCreatePageSystemPrompt();
         if (SHOULD_WRITE_CREATE_PAGE_SYSTEM) {
             await Bun.write(createPageSystemPath, prompt);
         }

@@ -1,24 +1,13 @@
-export enum DeploymentType {
-    PREVIEW = 'preview',
-    CUSTOM = 'custom',
-    UNPUBLISH_PREVIEW = 'unpublish_preview',
-    UNPUBLISH_CUSTOM = 'unpublish_custom',
+export enum PublishStatus {
+    UNPUBLISHED = 'unpublished',
+    LOADING = 'loading',
+    PUBLISHED = 'published',
+    ERROR = 'error',
 }
 
-export enum DeploymentStatus {
-    PENDING = 'pending',
-    IN_PROGRESS = 'in_progress',
-    COMPLETED = 'completed',
-    FAILED = 'failed',
-    CANCELLED = 'cancelled',
-}
-
-export interface DeploymentState {
-    status: DeploymentStatus;
+export interface PublishState {
+    status: PublishStatus;
     message: string | null;
-    buildLog: string | null;
-    error: string | null;
-    progress: number | null;
 }
 
 export interface CustomDomain {
@@ -41,37 +30,31 @@ export interface VerifyDomainResponse {
     message?: string;
 }
 
-export interface PublishResponse {
-    success: boolean;
-    message: string;
+export interface PublishRequest {
+    folderPath: string;
+    buildScript: string;
+    urls: string[];
+    options?: PublishOptions;
 }
 
-export enum HostingProvider {
-    FREESTYLE = 'freestyle',
-}
-
-export interface DeploymentFile {
-    content: string;
-    encoding?: 'utf-8' | 'base64';
-}
-
-export interface DeploymentConfig {
-    domains: string[];
-    entrypoint?: string;
+export interface PublishOptions {
+    skipBuild?: boolean;
+    skipBadge?: boolean;
+    buildFlags?: string;
     envVars?: Record<string, string>;
 }
 
-export interface DeploymentRequest {
-    files: Record<string, DeploymentFile>;
-    config: DeploymentConfig;
+export interface UnpublishRequest {
+    urls: string[];
 }
 
-export interface DeploymentResponse {
-    deploymentId: string;
+export interface PublishResponse {
     success: boolean;
     message?: string;
 }
 
-export interface HostingProviderAdapter {
-    deploy(request: DeploymentRequest): Promise<DeploymentResponse>;
+export interface GetOwnedDomainsResponse {
+    success: boolean;
+    message?: string;
+    domains?: string[];
 }

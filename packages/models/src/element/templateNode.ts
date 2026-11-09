@@ -1,21 +1,25 @@
-import { type CoreElementType, type DynamicType } from './layers';
+import { z } from 'zod';
+import { CoreElementTypeEnum, DynamicTypeEnum } from './layers';
 
-export interface TemplateNode {
-    path: string;
-    branchId: string;
-    startTag: TemplateTag;
-    endTag: TemplateTag | null;
-    component: string | null;
-    dynamicType: DynamicType | null;
-    coreElementType: CoreElementType | null;
-}
+export const TemplateTagPositionSchema = z.object({
+    line: z.number(),
+    column: z.number(),
+});
 
-export interface TemplateTag {
-    start: TemplateTagPosition;
-    end: TemplateTagPosition;
-}
+export const TemplateTagSchema = z.object({
+    start: TemplateTagPositionSchema,
+    end: TemplateTagPositionSchema,
+});
 
-export interface TemplateTagPosition {
-    line: number;
-    column: number;
-}
+export const TemplateNodeSchema = z.object({
+    path: z.string(),
+    startTag: TemplateTagSchema,
+    endTag: TemplateTagSchema.nullable(),
+    component: z.string().nullable(),
+    dynamicType: DynamicTypeEnum.nullable().optional(),
+    coreElementType: CoreElementTypeEnum.nullable().optional(),
+});
+
+export type TemplateNode = z.infer<typeof TemplateNodeSchema>;
+export type TemplateTag = z.infer<typeof TemplateTagSchema>;
+export type TemplateTagPosition = z.infer<typeof TemplateTagPositionSchema>;

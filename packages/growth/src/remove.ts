@@ -1,38 +1,32 @@
-// Modified for pinecone; see NOTICE.
-import type { T } from '@pinecone/parser';
-import type { FileOperations } from '@pinecone/utility';
-import { generate, getAstFromContent, t, traverse } from '@pinecone/parser';
-
-import { getLayoutPath } from './helpers';
+// Modified for pinecone desktop; see NOTICE.
+import generate from '@babel/generator';
+import { parse } from '@babel/parser';
+import traverse from '@babel/traverse';
+import * as t from '@babel/types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Removes the Built with pinecone script from a Next.js layout file
  * @param projectPath Path to the project root
- * @param fileOps File operations interface
  */
-export async function removeBuiltWithScriptFromLayout(
-    projectPath: string,
-    fileOps: FileOperations,
-): Promise<boolean> {
+export async function removeBuiltWithScriptFromLayout(projectPath: string): Promise<boolean> {
     try {
-        const layoutPath = await getLayoutPath(projectPath, fileOps.fileExists);
-        if (!layoutPath) {
-            console.error('Layout file not found');
+        // Find the layout file
+        const layoutPath = path.join(projectPath, 'app', 'layout.tsx');
+        if (!fs.existsSync(layoutPath)) {
+            console.error('Layout file not found at', layoutPath);
             return false;
         }
 
         // Read the layout file
-        const layoutContent = await fileOps.readFile(layoutPath);
-        if (!layoutContent) {
-            console.error('Failed to read layout file');
-            return false;
-        }
+        const layoutContent = fs.readFileSync(layoutPath, 'utf8');
 
         // Parse the layout file
-        const ast = getAstFromContent(layoutContent);
-        if (!ast) {
-            throw new Error(`Failed to parse file ${layoutPath}`);
-        }
+        const ast = parse(layoutContent, {
+            sourceType: 'module',
+            plugins: ['jsx', 'typescript'],
+        });
 
         let scriptImportRemoved = false;
         let scriptElementRemoved = false;
@@ -49,8 +43,7 @@ export async function removeBuiltWithScriptFromLayout(
                 ) {
                     // Find and remove the Script element for builtwith.js
                     const children = path.node.children;
-                    // Remove all <Script src="/builtwith.js" ... /> elements
-                    for (let i = 0; i < children.length;) {
+                    for (let i = 0; i < children.length; i++) {
                         const child = children[i];
                         if (
                             t.isJSXElement(child) &&
@@ -75,7 +68,7 @@ export async function removeBuiltWithScriptFromLayout(
                                 if (
                                     i > 0 &&
                                     t.isJSXText(children[i - 1]) &&
-                                    (children[i - 1] as T.JSXText).value.trim() === ''
+                                    (children[i - 1] as t.JSXText).value.trim() === ''
                                 ) {
                                     children.splice(i - 1, 1);
                                     i--;
@@ -83,31 +76,18 @@ export async function removeBuiltWithScriptFromLayout(
                                 if (
                                     i < children.length &&
                                     t.isJSXText(children[i]) &&
-                                    (children[i] as T.JSXText).value.trim() === ''
+                                    (children[i] as t.JSXText).value.trim() === ''
                                 ) {
                                     children.splice(i, 1);
                                 }
 
                                 scriptElementRemoved = true;
-                                continue; // Don't increment i, as we just removed an element
+                            } else {
+                                // There's another Script element
+                                hasOtherScriptElements = true;
                             }
                         }
-                        i++;
                     }
-                }
-            },
-        });
-
-        // After removal, check if any <Script> elements remain in the entire AST
-        hasOtherScriptElements = false;
-        traverse(ast, {
-            JSXElement(path) {
-                if (
-                    t.isJSXIdentifier(path.node.openingElement.name) &&
-                    path.node.openingElement.name.name === 'Script'
-                ) {
-                    hasOtherScriptElements = true;
-                    path.stop();
                 }
             },
         });
@@ -137,14 +117,9 @@ export async function removeBuiltWithScriptFromLayout(
             const output = generate(ast, {}, layoutContent);
 
             // Write the modified code back to the file
-            const writeSuccess = await fileOps.writeFile(layoutPath, output.code);
-            if (writeSuccess) {
-                console.log('Successfully removed Script from layout.tsx');
-                return true;
-            } else {
-                console.error('Failed to write modified layout.tsx');
-                return false;
-            }
+            fs.writeFileSync(layoutPath, output.code, 'utf8');
+            console.log('Successfully removed Script from layout.tsx');
+            return true;
         } else {
             console.log('No Script for builtwith.js found in layout.tsx');
             return false;
@@ -158,28 +133,18 @@ export async function removeBuiltWithScriptFromLayout(
 /**
  * Removes the builtwith.js script from the project's public folder
  * @param projectPath Path to the project root
- * @param fileOps File operations interface
  */
-export async function removeBuiltWithScript(
-    projectPath: string,
-    fileOps: FileOperations,
-): Promise<boolean> {
+export async function removeBuiltWithScript(projectPath: string): Promise<boolean> {
     try {
         // Path to the builtwith.js script in the project's public folder
-        const scriptPath = `${projectPath}/public/builtwith.js`;
+        const scriptPath = path.join(projectPath, 'public', 'builtwith.js');
 
         // Check if the file exists
-        const fileExists = await fileOps.fileExists(scriptPath);
-
-        if (fileExists) {
-            const deleteSuccess = await fileOps.delete(scriptPath, true);
-            if (deleteSuccess) {
-                console.log('Successfully removed builtwith.js from public folder');
-                return true;
-            } else {
-                console.error('Failed to delete builtwith.js from public folder');
-                return false;
-            }
+        if (fs.existsSync(scriptPath)) {
+            // Remove the file
+            fs.unlinkSync(scriptPath);
+            console.log('Successfully removed builtwith.js from public folder');
+            return true;
         } else {
             console.log('builtwith.js not found in public folder');
             return false;

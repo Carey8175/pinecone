@@ -1,15 +1,16 @@
-// Modified for pinecone; see NOTICE.
-import styled from '@emotion/styled';
-import { Color, mod } from '@pinecone/utility';
+// Modified for pinecone desktop; see NOTICE.
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import tw from 'tailwind-styled-components';
-import { cn } from '../../utils';
-import { DraftableInput } from '../draftable-input';
-import { InputGroup } from '../input-group';
+import { useState, useEffect, useCallback } from 'react';
 import { ColorSlider } from './ColorSlider';
-import EyeDropperButton from './EyeDropperButton';
 import { SVPicker } from './SVPicker';
+import tw from 'tailwind-styled-components';
+import { twMerge } from 'tailwind-merge';
+import { Color } from '@pinecone/utility';
+import { mod } from '@pinecone/utility';
+import { DraftableInput } from '../draftable-input';
+import styled from '@emotion/styled';
+import { InputGroup } from '../input-group';
+import EyeDropperButton from './EyeDropperButton';
 
 const Input = tw(DraftableInput)`
   outline-0 w-full h-6 bg-background-pinecone/70 rounded focus:ring-1 ring-inset ring-foreground-active text-foreground-primary placeholder:text-foreground-disabled text-center
@@ -35,7 +36,7 @@ const InputsRow = ({
         <div className="z-50 grid grid-cols-[48px_1fr_1fr_1fr_46px] gap-1 text-mini">
             <div className="flex items-center justify-center gap-1 min-w-0 ">
                 <label
-                    className="text-small text-foreground-primary cursor-pointer hover:text-foreground-hover bg-background-secondary border-[0.5px] border-foreground-tertiary/50 hover:bg-background-hover w-full flex rounded-sm justify-center py-[0.5px] select-none"
+                    className="text-small text-foreground-primary cursor-pointer hover:text-foreground-hover bg-background-secondary border-[0.5px] border-foreground-tertiary/50 hover:bg-background-hover w-full flex rounded justify-center py-[0.5px] select-none"
                     onClick={() =>
                         mode === 'hsl'
                             ? setMode('hsv')
@@ -270,7 +271,7 @@ export const ColorPicker: React.FC<{
     );
 
     return (
-        <div className={cn('w-[224px] flex flex-col gap-1.5 p-2', className)}>
+        <div className={twMerge('w-[224px] flex flex-col gap-1.5 p-2', className)}>
             <SVPicker
                 width={208}
                 height={160}

@@ -8,18 +8,3 @@ export enum StyleChangeType {
     Custom = 'custom',
     Remove = 'remove',
 }
-
-export interface TailwindColor {
-    name: string;
-    originalKey: string;
-    lightColor: string;
-    darkColor?: string;
-    line?: {
-        config?: number;
-        css?: {
-            lightMode?: number;
-            darkMode?: number;
-        };
-    };
-    override?: boolean;
-}

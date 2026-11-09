@@ -1,10 +1,10 @@
-// Modified for pinecone; see NOTICE.
+// Modified for pinecone desktop; see NOTICE.
 'use client';
 
-import { Color } from '@pinecone/utility';
 import { useCallback, useMemo } from 'react';
 import useEyeDropper from 'use-eye-dropper';
 import { Button } from '../button';
+import { Color } from '@pinecone/utility';
 import { Icons } from '../icons';
 
 type EyeDropperButtonProps = React.ComponentProps<'button'> & {

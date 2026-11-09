@@ -5,7 +5,7 @@
     "compilerOptions": {
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "target": "es2023",
+        "target": "es2022",
         "allowJs": true,
         "resolveJsonModule": true,
         "moduleDetection": "force",
@@ -17,7 +17,7 @@
         "lib": [
             "dom",
             "dom.iterable",
-            "es2023"
+            "ES2022"
         ],
         "noEmit": true,
         "module": "ESNext",
@@ -49,7 +49,6 @@
         ".next/types/**/*.ts"
     ],
     "exclude": [
-        "node_modules",
-        ".next"
+        "node_modules"
     ]
 }

@@ -5,7 +5,6 @@ import { type ActionTarget, type StyleActionTarget } from './target';
 interface BaseActionElement {
     domId: string;
     oid: string;
-    branchId: string;
     tagName: string;
     attributes: Record<string, string>;
     styles: Record<string, string>;
@@ -58,10 +57,6 @@ export interface EditTextAction {
     newContent: string;
 }
 
-export interface EditTextResult {
-    originalContent: string;
-}
-
 export interface GroupContainer {
     domId: string;
     oid: string;
@@ -91,10 +86,10 @@ export interface WriteCodeAction {
 }
 
 export interface ImageContentData {
-    originPath: string;
     content: string;
     fileName: string;
     mimeType: string;
+    folder?: string;
 }
 
 interface BaseImageAction {

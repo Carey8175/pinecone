@@ -1,5 +1,5 @@
 {
-  "$comment": "Modified for pinecone; see NOTICE.",
+  "$comment": "Modified for pinecone desktop; see NOTICE.",
   "name": "@pinecone/models",
   "description": "Common models shared between pinecone packages",
   "version": "0.0.0",
@@ -8,13 +8,11 @@
     "url": "https://github.com/Carey8175/pinecone.git"
   },
   "type": "module",
-  "module": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "build": "bun build src/index.ts --outfile=dist/index.js",
     "clean": "rm -rf node_modules",
-    "lint": "eslint . --max-warnings 0",
-    "format": "eslint --fix .",
+    "lint": "eslint --fix",
+    "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
@@ -32,13 +30,12 @@
     "./*": "./src/*/index.ts"
   },
   "devDependencies": {
-    "@pinecone/eslint": "*",
     "@pinecone/typescript": "*",
-    "ai": "5.0.60",
-    "eslint": "^9.0.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "zod": "^4.1.3"
+    "ai": "^4.2.6",
+    "type-fest": "^4.26.1",
+    "zod": "^3.23.8"
   }
 }

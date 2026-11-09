@@ -1,4 +1,4 @@
-import type { ModelMessage } from 'ai';
+import type { CoreMessage } from 'ai';
 
 export enum StreamRequestType {
     CHAT = 'chat',
@@ -9,14 +9,14 @@ export enum StreamRequestType {
 }
 
 export type StreamRequest = {
-    messages: ModelMessage[];
+    messages: CoreMessage[];
     systemPrompt: string;
     requestType: StreamRequestType;
     useAnalytics: boolean;
 };
 
 export type StreamRequestV2 = {
-    messages: ModelMessage[];
+    messages: CoreMessage[];
     requestType: StreamRequestType;
     useAnalytics: boolean;
 };

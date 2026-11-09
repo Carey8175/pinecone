@@ -1,5 +1,5 @@
 {
-  "$comment": "Modified for pinecone; see NOTICE.",
+  "$comment": "Modified for pinecone desktop; see NOTICE.",
   "name": "@pinecone/types",
   "description": "Common types shared between pinecone packages",
   "version": "0.0.0",
@@ -11,8 +11,8 @@
   "main": "src/index.ts",
   "scripts": {
     "clean": "rm -rf node_modules",
-    "lint": "eslint . --max-warnings 0",
-    "format": "eslint --fix .",
+    "lint": "eslint --fix .",
+    "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
@@ -29,9 +29,7 @@
     "./*": "./src/*/index.ts"
   },
   "devDependencies": {
-    "@pinecone/eslint": "*",
     "@pinecone/typescript": "*",
-    "eslint": "^9.0.0",
     "typescript": "^5.5.4"
   }
 }

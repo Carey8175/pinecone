@@ -1,4 +1,4 @@
-// Modified for pinecone; see NOTICE.
+// Modified for pinecone desktop; see NOTICE.
 import fs from 'fs';
 import {
     currentBranch,

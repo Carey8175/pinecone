@@ -1,4 +1,4 @@
-// Modified for pinecone; see NOTICE.
+// Modified for pinecone desktop; see NOTICE.
 export const builtWithScript = `
 (function () {
     if (typeof window !== 'undefined') {
@@ -43,7 +43,7 @@ export const builtWithScript = `
 
                 // Create SVG element
                 const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.setAttribute('viewBox', '0 0 24 24');
+                svg.setAttribute('viewBox', '0 0 300 300');
                 svg.setAttribute('fill', 'none');
                 svg.classList.add('logo');
 
@@ -52,7 +52,7 @@ export const builtWithScript = `
                 path.setAttribute('fill', 'currentColor');
                 path.setAttribute(
                     'd',
-                    'M12 2 8 6l4 3 4-3-4-4ZM7 7l-3 4 5 4 3-5-5-3Zm10 0-5 3 3 5 5-4-3-4ZM4 13l1 5 6 3-2-5-5-3Zm16 0-5 3-2 5 6-3 1-5ZM10 15l2-3 2 3-2 5-2-5Z',
+                    'M202.08 235.385C230.819 217.818 250 186.149 250 150C250 94.7715 205.228 50 150 50C94.7715 50 50 94.7715 50 150C50 173.663 58.2187 195.406 71.9571 212.53L108.457 183.393V142.851V124.616L86.1507 102.309H108.457H192.365C200.318 102.309 206.765 108.756 206.765 116.709V142.462C199.252 137.261 193.843 133.078 193.843 133.078L168.458 148.462L211.92 185.386L202.08 235.385ZM152.787 113.509H183.163C183.163 113.509 184.303 126.155 167.688 126.155C152.787 113.508 152.787 113.509 152.787 113.509Z',
                 );
 
                 svg.appendChild(path);
@@ -64,7 +64,7 @@ export const builtWithScript = `
                 badge.appendChild(text);
 
                 badge.addEventListener('click', () => {
-                    window.open('https://github.com/Carey8175/pinecone', '_blank');
+                    window.open('https://pinecone.example', '_blank');
                 });
 
                 badge.addEventListener('mouseenter', () => {

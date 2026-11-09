@@ -1,7 +1,6 @@
 interface BaseDomElement {
     domId: string;
-    frameId: string;
-    branchId: string;
+    webviewId: string;
     oid: string | null;
     instanceId: string | null;
     rect: DOMRect;
@@ -29,11 +28,4 @@ export interface DropElementProperties {
     tagName: string;
     styles: Record<string, string>;
     textContent: string | null;
-}
-
-export interface RectDimensions {
-    width: number;
-    height: number;
-    top: number;
-    left: number;
 }

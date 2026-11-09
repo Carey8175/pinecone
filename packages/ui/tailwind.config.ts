@@ -1,10 +1,11 @@
-// Modified for pinecone; see NOTICE.
+// Modified for pinecone desktop; see NOTICE.
 import type { Config } from 'tailwindcss';
 import { colors, fontSize } from './tokens';
 
 const config = {
-    darkMode: ['class', '[data-mode="dark"]'],
+    darkMode: ['class'],
     content: ['./src/**/*.{ts,tsx}'],
+    safelist: ['dark', 'light'],
     prefix: '',
     theme: {
         container: {
@@ -16,7 +17,6 @@ const config = {
         },
         extend: {
             colors: {
-                ...colors,
                 background: {
                     DEFAULT: 'hsl(var(--background))',
                     pinecone: 'hsl(var(--background-pinecone))',
@@ -124,6 +124,7 @@ const config = {
                 },
                 input: 'hsl(var(--input))',
                 ring: 'hsl(var(--ring))',
+                ...colors,
             },
             fontSize: {
                 title1: [
@@ -262,17 +263,9 @@ const config = {
                     '100%': { transform: 'rotate(-0.5deg)' },
                 },
                 shine: {
-                    '0%': { backgroundPosition: '0% 0%' },
-                    '50%': { backgroundPosition: '100% 100%' },
-                    '100%': { backgroundPosition: '0% 0%' },
-                },
-                shimmer: {
-                    '0%': { backgroundPosition: '100% 0' },
-                    '100%': { backgroundPosition: '-100% 0' },
-                },
-                'shimmer-vertical': {
-                    '0%': { backgroundPosition: '0 100%' },
-                    '100%': { backgroundPosition: '0 -100%' },
+                    '0%': { 'background-position': '0% 0%' },
+                    '50%': { 'background-position': '100% 100%' },
+                    '100%': { 'background-position': '0% 0%' },
                 },
             },
             animation: {
@@ -283,8 +276,6 @@ const config = {
                 'toolbar-up': 'toolbar-up 1.25s ease',
                 wiggle: 'wiggle 0.5s cubic-bezier(0.25, 1, 0.5, 1) 7s infinite',
                 shine: 'shine var(--duration) infinite linear',
-                shimmer: 'shimmer 1.5s linear infinite',
-                'shimmer-vertical': 'shimmer-vertical 2s linear infinite',
             },
         },
     },

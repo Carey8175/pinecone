@@ -12,14 +12,8 @@ export interface PageNode {
     isRoot?: boolean;
 }
 
-export interface TitleMetadata {
-    template?: string;
-    default?: string;
-    absolute?: string;
-}
-
 export interface PageMetadata {
-    title?: string | TitleMetadata;
+    title?: string;
     description?: string;
     applicationName?: string;
     metadataBase?: null | URL;

@@ -1,12 +1,11 @@
 {
-  "$comment": "Modified for pinecone; see NOTICE.",
+  "$comment": "Modified for pinecone desktop; see NOTICE.",
   "name": "@pinecone/repo",
   "version": "0.0.0",
   "description": "pinecone Monorepo",
   "homepage": "https://github.com/Carey8175/pinecone",
   "license": "Apache-2.0",
   "private": true,
-  "type": "module",
   "author": {
     "name": "Carey8175",
     "url": "https://github.com/Carey8175"
@@ -14,33 +13,34 @@
   "workspaces": [
     "packages/*",
     "apps/*",
-    "tooling/*",
-    "apps/web/*",
-    "docs"
+    "tooling/*"
   ],
   "scripts": {
-    "build": "bun --filter @pinecone/web build:client",
-    "start": "bun --filter @pinecone/web start:client",
-    "dev": "bun --filter @pinecone/web dev",
-    "test": "bun --filter '*' test",
-    "docs": "bun --filter @pinecone/docs dev",
-    "backend:start": "bun --filter @pinecone/backend start",
-    "db:gen": "bun --filter @pinecone/db db:gen",
-    "db:push": "cd packages/db && bun db:push",
-    "db:seed": "cd packages/db && bun db:seed",
-    "db:migrate": "cd packages/db && bun db:migrate",
-    "db:reset": "cd apps/backend && bun run reset",
-    "format": "bun --filter '*' format",
-    "lint": "bun --filter '*' lint",
-    "typecheck": "bun --filter @pinecone/web-client typecheck",
+    "build:foundation": "bun --filter @pinecone/foundation build",
+    "build:cli": "bun build:foundation && bun --filter pinecone typecheck && bun --filter pinecone build",
+    "build:studio": "bun build:foundation && bun --filter @pinecone/studio build",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "bun --filter '*' clean",
-    "setup:env": "cd packages/scripts && bun run start",
-    "docker:build": "docker compose build",
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f",
-    "docker:restart": "docker compose down && docker compose up -d --build"
+    "db:gen": "bun --filter @pinecone/supabase db:gen",
+    "db:gen:local": "bun --filter @pinecone/backend db:gen",
+    "dev:foundation": "bun --filter @pinecone/foundation dev",
+    "dev:studio": "bun --filter @pinecone/studio dev",
+    "build": "bun --filter '*' build",
+    "ci:build": "bun run build:foundation && bun --filter '*' build",
+    "dev": "bun --elide-lines=0  --filter '*' dev",
+    "test": "bun --filter '*' test",
+    "format": "bun --filter '*' format",
+    "lint": "bun --filter @pinecone/studio lint",
+    "typecheck": "bun --filter '*' typecheck",
+    "increment_tag": "./scripts/increment_tag.sh",
+    "publish_tag": "./scripts/publish_tag.sh",
+    "remove_tag": "./scripts/remove_tag.sh",
+    "download_bun": "bun run ./scripts/download_bun.ts",
+    "prepare": "husky",
+    "desktop": "bun run prepare:resources && bun run build:studio && bun run rebuild:native && bun --filter @pinecone/studio start",
+    "start": "bun --filter @pinecone/studio start",
+    "rebuild:native": "bun scripts/rebuild_native.ts",
+    "prepare:resources": "bun scripts/prepare_resources.ts"
   },
   "repository": {
     "type": "git",
@@ -50,7 +50,12 @@
     "url": "https://github.com/Carey8175/pinecone/issues"
   },
   "devDependencies": {
-    "@pinecone/eslint": "*"
+    "extract-zip": "^2.0.1",
+    "husky": "^9.1.6",
+    "@electron/rebuild": "3.7.0"
   },
-  "packageManager": "bun@1.3.1"
+  "packageManager": "bun@1.3.12",
+  "overrides": {
+    "node-abi": "3.101.0"
+  }
 }

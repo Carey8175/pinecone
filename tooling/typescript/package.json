@@ -1,5 +1,5 @@
 {
-  "$comment": "Modified for pinecone; see NOTICE.",
+  "$comment": "Modified for pinecone desktop; see NOTICE.",
   "name": "@pinecone/typescript",
   "description": "The pinecone TypeScript Configuration",
   "version": "0.0.0",

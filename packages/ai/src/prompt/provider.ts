@@ -1,162 +1,242 @@
-// Modified for pinecone; see NOTICE.
-import {
-    MessageContextType,
-    type ChatMessage,
-    type MessageContext
-} from '@pinecone/models';
-import type { FileUIPart } from 'ai';
-import { AgentRuleContext, BranchContext, ErrorContext, FileContext, ImageContext } from '../contexts/classes';
-import { ASK_MODE_SYSTEM_PROMPT, CREATE_NEW_PAGE_SYSTEM_PROMPT, SHELL_PROMPT, SUGGESTION_SYSTEM_PROMPT, SUMMARY_PROMPTS, SYSTEM_PROMPT } from './constants';
+// Modified for pinecone desktop; see NOTICE.
+import type {
+    ChatMessageContext,
+    ErrorMessageContext,
+    FileMessageContext,
+    HighlightMessageContext,
+    ProjectMessageContext,
+} from '@pinecone/models/chat';
+import type { CoreUserMessage, ImagePart, UserContent } from 'ai';
+import { CONTEXT_PROMPTS } from './context';
+import { CREATE_PAGE_EXAMPLE_CONVERSATION, PAGE_SYSTEM_PROMPT } from './create';
+import { EDIT_PROMPTS, SEARCH_REPLACE_EXAMPLE_CONVERSATION } from './edit';
+import { FENCE } from './format';
 import { wrapXml } from './helpers';
+import { PLATFORM_SIGNATURE } from './signatures';
+import { SUMMARY_PROMPTS } from './summary';
 
-export interface HydrateMessageOptions {
-    totalMessages: number;
-    currentMessageIndex: number;
-    lastUserMessageIndex: number;
-    lastAssistantMessageIndex: number;
-}
-
-export function getSystemPrompt() {
-    let prompt = '';
-    prompt += wrapXml('role', SYSTEM_PROMPT);
-    prompt += wrapXml('shell', SHELL_PROMPT);
-    return prompt;
-}
-
-export function getCreatePageSystemPrompt() {
-    let prompt = getSystemPrompt() + '\n\n';
-    prompt += wrapXml('create-system-prompt', CREATE_NEW_PAGE_SYSTEM_PROMPT);
-    return prompt;
-}
-
-export function getSuggestionSystemPrompt() {
-    let prompt = '';
-    prompt += wrapXml('role', SUGGESTION_SYSTEM_PROMPT);
-    return prompt;
-}
-
-export function getAskModeSystemPrompt() {
-    let prompt = '';
-    prompt += wrapXml('role', ASK_MODE_SYSTEM_PROMPT);
-    return prompt;
-}
-
-export function getExampleConversation(
-    conversation: {
-        role: string;
-        content: string;
-    }[],
-) {
-    let prompt = '';
-    for (const message of conversation) {
-        prompt += `${message.role.toUpperCase()}: ${message.content}\n`;
+export class PromptProvider {
+    shouldWrapXml: boolean;
+    constructor(shouldWrapXml = true) {
+        this.shouldWrapXml = shouldWrapXml;
     }
-    return prompt;
-}
 
-export function getHydratedUserMessage(
-    id: string,
-    parts: ChatMessage['parts'],
-    context: MessageContext[],
-    opt: HydrateMessageOptions,
-): ChatMessage {
-    let userParts: ChatMessage['parts'] = [];
-    const files = context.filter((c) => c.type === MessageContextType.FILE).map((c) => c);
-    const highlights = context.filter((c) => c.type === MessageContextType.HIGHLIGHT).map((c) => c);
-    const errors = context.filter((c) => c.type === MessageContextType.ERROR).map((c) => c);
-    const agentRules = context.filter((c) => c.type === MessageContextType.AGENT_RULE).map((c) => c);
-    const allImages = context.filter((c) => c.type === MessageContextType.IMAGE).map((c) => c);
-    const externalImages = allImages.filter((img) => img.source === 'external');
-    const localImages = allImages.filter((img) => img.source === 'local');
-    const branches = context.filter((c) => c.type === MessageContextType.BRANCH).map((c) => c);
+    getSystemPrompt(platform: NodeJS.Platform) {
+        let prompt = '';
 
-    // If there are 50 user messages in the contexts, we can trim all of them except
-    // the last one. The logic could be adjusted to trim more or less messages.
-    const truncateFileContext = opt.currentMessageIndex < opt.lastUserMessageIndex;
-    // Should the code need to trim other types of contexts, it can be done here.
-
-    let prompt = '';
-    if (truncateFileContext) {
-        const contextPrompt = FileContext.getTruncatedFilesContent(files);
-        if (contextPrompt) {
-            prompt += wrapXml('truncated-context', contextPrompt);
+        if (this.shouldWrapXml) {
+            prompt += wrapXml('role', EDIT_PROMPTS.system);
+            prompt += wrapXml('search-replace-rules', EDIT_PROMPTS.searchReplaceRules);
+            prompt += wrapXml(
+                'example-conversation',
+                this.getExampleConversation(SEARCH_REPLACE_EXAMPLE_CONVERSATION),
+            );
+        } else {
+            prompt += EDIT_PROMPTS.system;
+            prompt += EDIT_PROMPTS.searchReplaceRules;
+            prompt += this.getExampleConversation(SEARCH_REPLACE_EXAMPLE_CONVERSATION);
         }
-    } else {
-        const contextPrompt = FileContext.getFilesContent(files, highlights);
-        if (contextPrompt) {
-            prompt += wrapXml('context', contextPrompt);
+        prompt = prompt.replace(PLATFORM_SIGNATURE, platform);
+        return prompt;
+    }
+
+    getCreatePageSystemPrompt() {
+        let prompt = '';
+
+        if (this.shouldWrapXml) {
+            prompt += wrapXml('role', PAGE_SYSTEM_PROMPT.role);
+            prompt += wrapXml('rules', PAGE_SYSTEM_PROMPT.rules);
+            prompt += wrapXml(
+                'example-conversation',
+                this.getExampleConversation(CREATE_PAGE_EXAMPLE_CONVERSATION),
+            );
+        } else {
+            prompt += PAGE_SYSTEM_PROMPT.role;
+            prompt += PAGE_SYSTEM_PROMPT.rules;
+            prompt += this.getExampleConversation(CREATE_PAGE_EXAMPLE_CONVERSATION);
         }
+        return prompt;
     }
 
-    if (errors.length > 0) {
-        const errorPrompt = ErrorContext.getErrorsContent(errors);
-        prompt += errorPrompt;
+    getExampleConversation(
+        conversation: {
+            role: string;
+            content: string;
+        }[],
+    ) {
+        let prompt = '';
+        for (const message of conversation) {
+            prompt += `${message.role.toUpperCase()}: ${message.content}\n`;
+        }
+        return prompt;
     }
 
-    if (agentRules.length > 0) {
-        const agentRulePrompt = AgentRuleContext.getAgentRulesContent(agentRules);
-        prompt += agentRulePrompt;
+    getHydratedUserMessage(content: UserContent, context: ChatMessageContext[]): CoreUserMessage {
+        if (content.length === 0) {
+            throw new Error('Message is required');
+        }
+
+        const files = context.filter((c) => c.type === 'file').map((c) => c);
+        const highlights = context.filter((c) => c.type === 'highlight').map((c) => c);
+        const errors = context.filter((c) => c.type === 'error').map((c) => c);
+        const project = context.filter((c) => c.type === 'project').map((c) => c);
+        const images = context.filter((c) => c.type === 'image').map((c) => c);
+
+        let prompt = '';
+        let contextPrompt = this.getFilesContent(files, highlights);
+        if (contextPrompt) {
+            if (this.shouldWrapXml) {
+                contextPrompt = wrapXml('context', contextPrompt);
+            }
+            prompt += contextPrompt;
+        }
+
+        if (errors.length > 0) {
+            let errorPrompt = this.getErrorsContent(errors);
+            prompt += errorPrompt;
+        }
+
+        if (project.length > 0) {
+            prompt += this.getProjectContext(project[0]);
+        }
+
+        if (this.shouldWrapXml) {
+            const textContent =
+                typeof content === 'string'
+                    ? content
+                    : content
+                          .filter((c) => c.type === 'text')
+                          .map((c) => c.text)
+                          .join('\n');
+            prompt += wrapXml('instruction', textContent);
+        } else {
+            prompt += content;
+        }
+
+        const imageParts: ImagePart[] = images.map((i) => ({
+            type: 'image',
+            image: i.content,
+            mimeType: i.mimeType,
+        }));
+
+        return {
+            role: 'user',
+            content: [
+                ...imageParts,
+                {
+                    type: 'text',
+                    text: prompt,
+                },
+            ],
+        };
     }
 
-    if (branches.length > 0) {
-        const branchPrompt = BranchContext.getBranchesContent(branches);
-        prompt += branchPrompt;
+    getFilesContent(files: FileMessageContext[], highlights: HighlightMessageContext[]) {
+        if (files.length === 0) {
+            return '';
+        }
+        let prompt = '';
+        prompt += `${CONTEXT_PROMPTS.filesContentPrefix}\n`;
+        let index = 1;
+        for (const file of files) {
+            let filePrompt = `${file.path}\n`;
+            filePrompt += `${FENCE.code.start}${this.getLanguageFromFilePath(file.path)}\n`;
+            filePrompt += file.content;
+            filePrompt += `\n${FENCE.code.end}\n`;
+            filePrompt += this.getHighlightsContent(file.path, highlights);
+
+            if (this.shouldWrapXml) {
+                filePrompt = wrapXml(files.length > 1 ? `file-${index}` : 'file', filePrompt);
+            }
+            prompt += filePrompt;
+            index++;
+        }
+
+        return prompt;
     }
 
-    if (localImages.length > 0) {
-        const localImageList = localImages
-            .map((img) => `- ${img.displayName}: ${img.path} (branch: ${img.branchId})`)
-            .join('\n');
-        prompt += wrapXml('local-images',
-            'These images already exist in the project at the specified paths. Reference them directly in your code without uploading:\n' + localImageList
-        );
+    getErrorsContent(errors: ErrorMessageContext[]) {
+        if (errors.length === 0) {
+            return '';
+        }
+        let prompt = `${CONTEXT_PROMPTS.errorsContentPrefix}\n`;
+        for (const error of errors) {
+            prompt += `${error.content}\n`;
+        }
+
+        if (prompt.trim().length > 0 && this.shouldWrapXml) {
+            prompt = wrapXml('errors', prompt);
+        }
+        return prompt;
     }
 
-    if (externalImages.length > 0) {
-        const imageList = externalImages
-            .map((img, idx) => `${idx + 1}. ${img.displayName} (ID: ${img.id || 'unknown'})`)
-            .join('\n');
-        prompt += wrapXml('available-images',
-            'These are new images that need to be uploaded to the project using the upload_image tool:\n' + imageList
-        );
+    getLanguageFromFilePath(filePath: string): string {
+        return filePath.split('.').pop() || '';
     }
 
-    const textContent = parts
-        .filter((p) => p.type === 'text')
-        .map((p) => p.text)
-        .join('\n');
-    prompt += wrapXml('instruction', textContent);
-
-    userParts.push({ type: 'text', text: prompt });
-
-    if (allImages.length > 0) {
-        const fileParts: FileUIPart[] = ImageContext.toFileUIParts(allImages);
-        userParts = userParts.concat(fileParts);
+    getHighlightsContent(filePath: string, highlights: HighlightMessageContext[]) {
+        const fileHighlights = highlights.filter((h) => h.path === filePath);
+        if (fileHighlights.length === 0) {
+            return '';
+        }
+        let prompt = `${CONTEXT_PROMPTS.highlightPrefix}\n`;
+        let index = 1;
+        for (const highlight of fileHighlights) {
+            let highlightPrompt = `${filePath}#L${highlight.start}:L${highlight.end}\n`;
+            highlightPrompt += `${FENCE.code.start}\n`;
+            highlightPrompt += highlight.content;
+            highlightPrompt += `\n${FENCE.code.end}\n`;
+            if (this.shouldWrapXml) {
+                highlightPrompt = wrapXml(
+                    fileHighlights.length > 1 ? `highlight-${index}` : 'highlight',
+                    highlightPrompt,
+                );
+            }
+            prompt += highlightPrompt;
+            index++;
+        }
+        return prompt;
     }
 
-    return {
-        id,
-        role: 'user',
-        parts: userParts,
-    };
-}
+    getSummaryPrompt() {
+        let prompt = '';
 
-export function getLanguageFromFilePath(filePath: string): string {
-    return filePath.split('.').pop() ?? '';
-}
+        if (this.shouldWrapXml) {
+            prompt += wrapXml('summary-rules', SUMMARY_PROMPTS.rules);
+            prompt += wrapXml('summary-guidelines', SUMMARY_PROMPTS.guidelines);
+            prompt += wrapXml('summary-format', SUMMARY_PROMPTS.format);
+            prompt += wrapXml('summary-reminder', SUMMARY_PROMPTS.reminder);
 
-export function getBranchContent(id: string) {
-    return wrapXml('branch', `id: "${id}"`);
-}
+            prompt += wrapXml('example-conversation', this.getSummaryExampleConversation());
+            prompt += wrapXml(
+                'example-summary-output',
+                'EXAMPLE SUMMARY:\n' + SUMMARY_PROMPTS.summary,
+            );
+        } else {
+            prompt += SUMMARY_PROMPTS.rules + '\n\n';
+            prompt += SUMMARY_PROMPTS.guidelines + '\n\n';
+            prompt += SUMMARY_PROMPTS.format + '\n\n';
+            prompt += SUMMARY_PROMPTS.reminder + '\n\n';
+            prompt += this.getSummaryExampleConversation();
+            prompt += 'EXAMPLE SUMMARY:\n' + SUMMARY_PROMPTS.summary + '\n\n';
+        }
 
-export function getSummaryPrompt() {
-    let prompt = '';
+        return prompt;
+    }
 
-    prompt += wrapXml('summary-rules', SUMMARY_PROMPTS.rules);
-    prompt += wrapXml('summary-guidelines', SUMMARY_PROMPTS.guidelines);
-    prompt += wrapXml('summary-format', SUMMARY_PROMPTS.format);
-    prompt += wrapXml('summary-reminder', SUMMARY_PROMPTS.reminder);
+    getSummaryExampleConversation() {
+        let prompt = 'EXAMPLE CONVERSATION:\n';
+        for (const message of SEARCH_REPLACE_EXAMPLE_CONVERSATION) {
+            prompt += `${message.role.toUpperCase()}: ${message.content}\n`;
+        }
+        return prompt;
+    }
 
-    prompt += wrapXml('example-summary-output', 'EXAMPLE SUMMARY:\n' + SUMMARY_PROMPTS.summary);
-    return prompt;
+    getProjectContext(project: ProjectMessageContext) {
+        const content = `${CONTEXT_PROMPTS.projectContextPrefix} ${project.path}`;
+        if (this.shouldWrapXml) {
+            return wrapXml('project-info', content);
+        }
+        return content;
+    }
 }
