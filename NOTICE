@@ -1,0 +1,13 @@
+pinecone
+
+This product includes software originally developed as Onlook by On Off, Inc.
+Copyright 2024 On Off, Inc.
+Original source: https://github.com/onlook-dev/onlook
+Source snapshot: 423e2e924366419e418ee049093872d535eea41a
+Licensed under the Apache License, Version 2.0; see LICENSE.md.
+
+Modified by Carey8175, November 2026: renamed the product, workspaces,
+identifiers, documentation and configuration to pinecone; replaced branding;
+removed upstream service defaults and initialized an independent repository.
+This project is not affiliated with or endorsed by the original developers.
+See MODIFICATIONS.md for the modified-file inventory.

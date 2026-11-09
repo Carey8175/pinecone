@@ -1,0 +1,7 @@
+{
+  "$comment": "Modified for pinecone; see NOTICE.",
+  "name": "@pinecone/typescript",
+  "description": "The pinecone TypeScript Configuration",
+  "version": "0.0.0",
+  "private": true
+}

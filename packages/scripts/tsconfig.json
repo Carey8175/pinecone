@@ -1,0 +1,20 @@
+// Modified for pinecone; see NOTICE.
+{
+    "extends": "@pinecone/typescript/base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "target": "ES2020",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true
+    },
+    "include": [
+        "src/**/*",
+        "test/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

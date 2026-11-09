@@ -1,0 +1,14 @@
+// Modified for pinecone; see NOTICE.
+{
+    "extends": "@pinecone/typescript/react-library.json",
+    "compilerOptions": {
+        "baseUrl": "."
+    },
+    "include": [
+        "src",
+        "test"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

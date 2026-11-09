@@ -1,0 +1,44 @@
+{
+  "$comment": "Modified for pinecone; see NOTICE.",
+  "name": "@pinecone/models",
+  "description": "Common models shared between pinecone packages",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Carey8175/pinecone.git"
+  },
+  "type": "module",
+  "module": "src/index.ts",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "bun build src/index.ts --outfile=dist/index.js",
+    "clean": "rm -rf node_modules",
+    "lint": "eslint . --max-warnings 0",
+    "format": "eslint --fix .",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "pinecone",
+    "models"
+  ],
+  "author": {
+    "name": "Carey8175",
+    "url": "https://github.com/Carey8175"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Carey8175/pinecone",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*/index.ts"
+  },
+  "devDependencies": {
+    "@pinecone/eslint": "*",
+    "@pinecone/typescript": "*",
+    "ai": "5.0.60",
+    "eslint": "^9.0.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "zod": "^4.1.3"
+  }
+}

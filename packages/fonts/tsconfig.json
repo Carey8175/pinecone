@@ -1,0 +1,9 @@
+// Modified for pinecone; see NOTICE.
+{
+    "extends": "@pinecone/typescript/base.json",
+    "compilerOptions": {
+        "baseUrl": "."
+    },
+    "include": ["src"],
+    "exclude": ["node_modules"]
+}
